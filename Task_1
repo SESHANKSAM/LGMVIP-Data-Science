@@ -1,0 +1,94 @@
+#importing the libraries related to the data_manipulation
+import numpy as np
+import pandas as pd
+#importing the libraries related to the data_visualization
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+iris = pd.read_csv('iris.csv')
+iris
+
+iris.shape
+
+#Use the info() method of iris to get more information about the DataFrame
+iris.info()
+
+#Inspect missing values in the dataset
+iris.isnull().sum()
+
+iris.describe()
+
+#Renaming the column name for the further reference:
+iris0 = iris.rename(columns = {0: 'SepalLength'}, inplace = True)
+iris1 = iris.rename(columns = {1: 'SepalWidth'}, inplace = True)
+iris0 = iris.rename(columns = {0: 'PetalLength'}, inplace = True)
+iris0 = iris.rename(columns = {0: 'PetalWidth'}, inplace = True)
+iris0 = iris.rename(columns = {0: 'Species'}, inplace = True)
+iris
+
+fig = plt.figure()
+ax1 = fig.add_subplot(2,2,1)
+ax2 = fig.add_subplot(2,2,2)
+ax3 = fig.add_subplot(2,2,3)
+ax4=fig.add_subplot(2,2,4)
+# Price
+ax1.hist(iris['SepalLengthCm'], color = 'grey')
+ax1.set_xlabel('SepalLength in CM')
+
+
+# Open
+ax2.hist(iris['SepalWidthCm'], color = 'grey')
+ax2.set_xlabel('SepalWidth in CM')
+
+
+# High
+ax3.hist(iris['PetalLengthCm'], color = 'grey')
+ax3.set_xlabel('PetalLength in CM')
+
+
+# Low
+ax4.hist(iris['PetalWidthCm'], color = 'grey')
+ax4.set_xlabel('PetalWidth in CM')
+
+fig.set_figheight(10)
+fig.set_figwidth(15)
+
+plt.show()
+
+sns.pairplot(data=iris,hue='Species')
+
+corr = iris.corr()
+plt.figure(figsize = (5,4))
+sns.heatmap(corr, annot =True, vmin = -1.0, cmap = 'mako')
+plt.title('Correlation Matrix')
+plt.show()
+
+sns.pairplot(data=iris,hue='Species')
+
+from sklearn.cluster import KMeans
+LIST = []
+x = iris[['SepalLengthCm', 'SepalWidthCm','PetalLengthCm', 'PetalWidthCm',]].to_numpy()
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters = i, init = 'k-means++',
+                   max_iter = 300, n_init = 10, random_state = 0)
+    kmeans.fit(x)
+    LIST.append(kmeans.inertia_)
+    
+    kmeans = KMeans(n_clusters = 3, init = 'k-means++',
+                   max_iter = 300, n_init = 10, random_state = 0)
+y_kmeans = kmeans.fit_predict(x)
+
+# Visualising the clusters - On the first two columns
+plt.scatter(x[y_kmeans == 0, 0], x[y_kmeans == 0, 1],
+           s = 100, c = 'red', label = 'Iris-setosa')
+plt.scatter(x[y_kmeans == 1, 0], x[y_kmeans == 1, 1],
+           s = 100, c = 'violet', label = 'versicolour')
+plt.scatter(x[y_kmeans == 2, 0], x[y_kmeans == 2, 1],
+           s = 100, c = 'orange', label = 'Iris-virginica')
+
+# Plotting the centroids of the clusters
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:,1],
+            s = 100, c = 'green', label = 'Centroids')
+
+plt.legend()
